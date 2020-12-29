@@ -1,0 +1,49 @@
+{
+  "precipitation": "none",
+  "category": "forest",
+  "depth": 0.3,
+  "scale": 0.2,
+  "temperature": 0.5,
+  "downfall": 0.0,
+  "effects": {
+    "sky_color": 7972607,
+    "fog_color": 12638463,
+    "grass_color": 3447608,
+    "foliage_color": 3447608,
+    "water_color": 4159204,
+    "water_fog_color": 329011
+  },
+  "surface_builder": "shatteredsky:meadows",
+  "carvers": {},
+  "features": [
+    [],
+    [],
+    [],
+    [
+      "shatteredsky:small_hedrons",
+      "shatteredsky:small_hedrons_upper"
+    ],
+    [],
+    [],
+    [],
+    [],
+    [
+      "minecraft:forest_flower_vegetation",
+      "minecraft:birch_other",
+      "minecraft:flower_default",
+      "minecraft:patch_grass_forest",
+      "minecraft:brown_mushroom_normal",
+      "minecraft:red_mushroom_normal",
+      "minecraft:patch_sugar_cane",
+      "minecraft:patch_pumpkin",
+      "minecraft:spring_water",
+      "minecraft:spring_lava"
+    ],
+    []
+  ],
+  "starts": [
+  ],
+  "spawners": {
+  },
+  "spawn_costs": {}
+}

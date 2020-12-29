@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:decorated",
+  "config": {
+    "feature": {
+      "type": "shatteredsky:solid_hedron",
+      "config": {
+        "hedron_block": "shatteredsky:skymetal_hedron",
+        "size": {
+          "min": 1,
+          "max": 2
+        },
+        "y": {
+          "min": 10,
+          "max": 116
+        }
+      }
+    },
+    "decorator": {
+      "type": "minecraft:chance",
+      "config": {
+        "chance": 20
+      }
+    }
+  }
+}

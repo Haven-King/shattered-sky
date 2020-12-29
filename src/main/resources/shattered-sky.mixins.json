@@ -1,0 +1,29 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "dev.hephaestus.shatteredsky.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "mixins": [
+    "block.SpreadableBlockMixin",
+    "client.render.chunk.ChunkRendererRegionMixin",
+    "client.world.ClientWorldMixin",
+    "entity.EntityMixin",
+    "fluid.FlowableFluidMixin",
+    "world.SerializeChunkData",
+    "world.StoreChunkData",
+    "world.TickChunks",
+    "world.UpgradeChunkData",
+    "world.gen.chunk.ChunkGeneratorSettingsAccessor"
+  ],
+  "client": [
+    "client.render.BackgroundRendererMixin",
+    "client.render.RenderLayersAccessor",
+    "client.render.SkyPropertiesAccessor",
+    "client.render.WorldRendererMixin",
+    "client.render.chunk.ChunkBuilderMixin",
+    "client.render.model.ModelLoaderAccessor"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

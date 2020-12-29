@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "id": "shattered-sky",
+  "version": "${version}",
+  "name": "Shattered Sky",
+  "description": "",
+  "authors": [],
+  "contact": {},
+  "license": "MIT",
+  "icon": "assets/shattered-sky/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "client": [
+      "dev.hephaestus.shatteredsky.ShatteredSky"
+    ],
+    "main": [
+      "dev.hephaestus.shatteredsky.ShatteredSky"
+    ]
+  },
+  "mixins": [
+    "shattered-sky.mixins.json"
+  ],
+  "accessWidener": "shatteredsky.accesswidener",
+  "depends": {
+    "fabricloader": ">=0.10.8",
+    "fabric": "*",
+    "minecraft": "1.16.4"
+  }
+}

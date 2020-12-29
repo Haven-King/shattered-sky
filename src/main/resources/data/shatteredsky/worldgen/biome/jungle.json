@@ -1,0 +1,52 @@
+{
+  "precipitation": "none",
+  "category": "jungle",
+  "depth": 0.1,
+  "scale": 0.2,
+  "temperature": 0.5,
+  "downfall": 0.0,
+  "effects": {
+    "sky_color": 7847935,
+    "fog_color": 12577023,
+    "grass_color": 44805,
+    "foliage_color": 44805,
+    "water_color": 4159204,
+    "water_fog_color": 329011
+  },
+  "surface_builder": "shatteredsky:meadows",
+  "carvers": {},
+  "features": [
+    [],
+    [],
+    [],
+    [
+      "shatteredsky:small_hedrons",
+      "shatteredsky:large_hedrons",
+      "shatteredsky:small_hedrons_upper"
+    ],
+    [],
+    [],
+    [],
+    [],
+    [
+      "minecraft:bamboo_light",
+      "minecraft:trees_jungle",
+      "minecraft:flower_warm",
+      "minecraft:patch_grass_jungle",
+      "minecraft:brown_mushroom_normal",
+      "minecraft:red_mushroom_normal",
+      "minecraft:patch_sugar_cane",
+      "minecraft:patch_pumpkin",
+      "minecraft:spring_water",
+      "minecraft:spring_lava",
+      "minecraft:patch_melon",
+      "minecraft:vines"
+    ],
+    []
+  ],
+  "starts": [
+  ],
+  "spawners": {
+  },
+  "spawn_costs": {}
+}

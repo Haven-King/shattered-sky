@@ -1,0 +1,5 @@
+accessWidener	v1	named
+accessible field net/minecraft/client/render/chunk/ChunkBuilder$ChunkData initializedLayers Ljava/util/Set;
+accessible class net/minecraft/client/render/chunk/ChunkBuilder$BuiltChunk$RebuildTask
+accessible class net/minecraft/client/render/chunk/ChunkBuilder$BuiltChunk$Task
+accessible method net/minecraft/client/render/chunk/ChunkBuilder$BuiltChunk beginBufferBuilding (Lnet/minecraft/client/render/BufferBuilder;)V

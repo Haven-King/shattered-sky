@@ -1,0 +1,52 @@
+{
+  "precipitation": "none",
+  "category": "swamp",
+  "depth": 0.1,
+  "scale": 0.05,
+  "temperature": 0.5,
+  "downfall": 0.0,
+  "effects": {
+    "sky_color": 7972607,
+    "fog_color": 12638463,
+    "grass_color": 5095815,
+    "foliage_color": 5095815,
+    "water_color": 4159204,
+    "water_fog_color": 329011
+  },
+  "surface_builder": "shatteredsky:pools",
+  "carvers": {},
+  "features": [
+    [],
+    [],
+    [],
+    [
+      "shatteredsky:small_hedrons",
+      "shatteredsky:large_hedrons",
+      "shatteredsky:small_hedrons_upper"
+    ],
+    [],
+    [],
+    [],
+    [],
+    [
+      "minecraft:trees_water",
+      "minecraft:flower_default",
+      "minecraft:patch_grass_badlands",
+      "minecraft:brown_mushroom_normal",
+      "minecraft:red_mushroom_normal",
+      "minecraft:patch_sugar_cane",
+      "minecraft:patch_pumpkin",
+      "minecraft:spring_water",
+      "minecraft:spring_lava",
+      "minecraft:warm_ocean_vegetation",
+      "minecraft:seagrass_warm",
+      "minecraft:sea_pickle"
+    ],
+    []
+  ],
+  "starts": [
+  ],
+  "spawners": {
+  },
+  "spawn_costs": {}
+}
