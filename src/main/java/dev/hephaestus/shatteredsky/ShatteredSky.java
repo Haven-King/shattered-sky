@@ -200,17 +200,27 @@ public class ShatteredSky implements ModInitializer, ClientModInitializer {
 				int min = Math.min(context.origin().getY(), context.origin().getY() + context.ySize() - 1);
 				int max = Math.max(context.origin().getY(), context.origin().getY() + context.ySize() - 1);
 
-				BlockPos pos = new BlockPos(
-						context.origin().getX() + 1,
-						(min <= 10 && max >= 10) ? 10 : 70,
-						context.origin().getZ() + 1);
+				// The predicate doesn't seem to be begin checked properly
+				if (((min <= 10 && max >= 10) || (min <= 70) && max >= 70)
+						&& RegistryUtil.dimensionMatches(MinecraftClient.getInstance().world, ShatteredSky.DIMENSION_TYPE)) {
 
-				BlockState state = ShatteredSky.Blocks.ATMOSPHERE_BLOCK.getDefaultState();
+					// Without the `if` statement above, I will occasionally crash with an
+					// `ArrayIndexOutOfBoundsException`. This is presumably because when 10 is not between the min and
+					// max, we use a y value of 70. Theoretically, if this bake method only fires when the condition has
+					// been satisfied, this isn't a problem, but clearly that's not the case.
+					BlockPos pos = new BlockPos(
+							context.origin().getX(),
+							(min <= 10 && max >= 10) ? 10 : 70,
+							context.origin().getZ());
 
-//				renderer.bake(context.origin(), state);
-				BlockPos.iterate(context.origin(), context.origin().add(context.xSize() - 1, 0, context.zSize() - 1)).forEach(blockPos -> {
-					renderer.bake(blockPos, state);
-				});
+					BlockState state = ShatteredSky.Blocks.ATMOSPHERE_BLOCK.getDefaultState();
+
+					// This isn't a huge deal, but with iterate being fully inclusive, this `size - 1` thing is a bit of
+					// a pain.
+					BlockPos.iterate(pos, pos.add(context.xSize() - 1, 0, context.zSize() - 1)).forEach(blockPos -> {
+						renderer.bake(blockPos, state);
+					});
+				}
 			});
 		}
 
