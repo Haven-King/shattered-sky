@@ -1,0 +1,13 @@
+newmtl mushroom_bottom
+texture shatteredsky:block/mushroom_bottom
+
+newmtl mushroom_top
+texture shatteredsky:block/mushroom_top
+
+newmtl glow
+emission true
+tintindex0
+diffuse_shading false
+ambient_occlusion true
+cull down
+texture shatteredsky:block/mushroom_spore

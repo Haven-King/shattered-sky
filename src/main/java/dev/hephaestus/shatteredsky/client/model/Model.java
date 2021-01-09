@@ -2,31 +2,29 @@ package dev.hephaestus.shatteredsky.client.model;
 
 import net.fabricmc.fabric.api.renderer.v1.mesh.Mesh;
 import net.fabricmc.fabric.api.renderer.v1.model.FabricBakedModel;
-import net.fabricmc.fabric.api.renderer.v1.render.RenderContext;
 import net.minecraft.block.BlockState;
-import net.minecraft.client.render.model.BakedModel;
-import net.minecraft.client.render.model.BakedQuad;
-import net.minecraft.client.render.model.UnbakedModel;
+import net.minecraft.client.render.model.*;
 import net.minecraft.client.render.model.json.ModelOverrideList;
 import net.minecraft.client.render.model.json.ModelTransformation;
 import net.minecraft.client.texture.Sprite;
-import net.minecraft.client.util.math.Vector3f;
-import net.minecraft.item.ItemStack;
-import net.minecraft.state.property.Properties;
+import net.minecraft.client.util.SpriteIdentifier;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Quaternion;
-import net.minecraft.world.BlockRenderView;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
-import java.util.function.Supplier;
+import java.util.function.Function;
 
 public abstract class Model implements UnbakedModel, BakedModel, FabricBakedModel {
-	protected Sprite[] sprites;
+	private final SpriteIdentifier spriteId;
 	protected Mesh mesh = null;
-	protected List<BakedQuad> quads = null;
+	protected boolean ambientOcclusion = false;
+	protected boolean depth;
+	protected Sprite sprite;
+
+	protected Model(SpriteIdentifier sprite) {
+		this.spriteId = sprite;
+	}
 
 	@Override
 	public boolean isVanillaAdapter() {
@@ -34,68 +32,18 @@ public abstract class Model implements UnbakedModel, BakedModel, FabricBakedMode
 	}
 
 	@Override
-	public void emitItemQuads(ItemStack itemStack, Supplier<Random> supplier, RenderContext renderContext) {
-
-	}
-
-	@Override
 	public List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction face, Random random) {
-		if (quads == null) {
-			List<BakedQuad> quads = new ArrayList<>();
-
-			mesh.forEach(quadView -> {
-				quads.add(quadView.toBakedQuad(0, sprites[0], false));
-			});
-
-			this.quads = quads;
-		}
-
-		return quads;
-	}
-
-	@Override
-	public void emitBlockQuads(BlockRenderView blockRenderView, BlockState blockState, BlockPos blockPos, Supplier<Random> supplier, RenderContext renderContext) {
-		if (blockState.getProperties().contains(Properties.HORIZONTAL_FACING)) {
-			Quaternion rotate = Vector3f.POSITIVE_Y.getDegreesQuaternion(angle(blockState));
-			RenderContext.QuadTransform transform = mv -> {
-				Vector3f tmp = new Vector3f();
-
-				for (int i = 0; i < 4; i++) {
-					// Transform the position (center of rotation is 0.5, 0.5, 0.5)
-					mv.copyPos(i, tmp);
-					tmp.add(-0.5f, -0.5f, -0.5f);
-					tmp.rotate(rotate);
-					tmp.add(0.5f, 0.5f, 0.5f);
-					mv.pos(i, tmp);
-
-					// Transform the normal
-					if (mv.hasNormal(i)) {
-						mv.copyNormal(i, tmp);
-						tmp.rotate(rotate);
-						mv.normal(i, tmp);
-					}
-				}
-
-				mv.nominalFace(blockState.get(Properties.HORIZONTAL_FACING));
-				return true;
-			};
-
-			renderContext.pushTransform(transform);
-			renderContext.meshConsumer().accept(mesh);
-			renderContext.popTransform();
-		} else {
-			renderContext.meshConsumer().accept(mesh);
-		}
+		return null;
 	}
 
 	@Override
 	public boolean useAmbientOcclusion() {
-		return true;
+		return this.ambientOcclusion;
 	}
 
 	@Override
 	public boolean hasDepth() {
-		return false;
+		return this.depth;
 	}
 
 	@Override
@@ -110,17 +58,17 @@ public abstract class Model implements UnbakedModel, BakedModel, FabricBakedMode
 
 	@Override
 	public Sprite getSprite() {
-		return sprites[0];
+		return sprite;
 	}
 
 	@Override
 	public ModelTransformation getTransformation() {
-		return null;
+		return ModelTransformation.NONE;
 	}
 
 	@Override
 	public ModelOverrideList getOverrides() {
-		return null;
+		return ModelOverrideList.EMPTY;
 	}
 
 	@Override
@@ -128,15 +76,10 @@ public abstract class Model implements UnbakedModel, BakedModel, FabricBakedMode
 		return Collections.emptyList();
 	}
 
-	public static float angle(BlockState state) {
-		float r = state.contains(Properties.BOTTOM) && state.get(Properties.BOTTOM) ? 0 : 180;
+	@Override
+	public @Nullable BakedModel bake(ModelLoader loader, Function<SpriteIdentifier, Sprite> textureGetter, ModelBakeSettings rotationContainer, Identifier modelId) {
+		this.sprite = textureGetter.apply(this.spriteId);
 
-		switch (state.get(Properties.HORIZONTAL_FACING)) {
-			case NORTH: return r;
-			case EAST: return r + 270;
-			case SOUTH: return r + 180;
-			case WEST: return r + 90;
-			default: throw new RuntimeException();
-		}
+		return this;
 	}
 }

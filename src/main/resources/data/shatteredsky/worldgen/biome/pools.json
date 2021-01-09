@@ -16,7 +16,9 @@
   "surface_builder": "shatteredsky:pools",
   "carvers": {},
   "features": [
-    [],
+    [
+      "shatteredsky:dummy_consumer"
+    ],
     [],
     [],
     [
@@ -26,7 +28,9 @@
     ],
     [],
     [],
-    [],
+    [
+      "shatteredsky:crystal_ore"
+    ],
     [],
     [
       "minecraft:trees_water",

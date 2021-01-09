@@ -1,0 +1,23 @@
+{
+  "type": "shatteredsky:default",
+  "config": {
+    "top_material": {
+      "Name": "shatteredsky:mushroom_block",
+      "Properties": {
+
+      }
+    },
+    "under_material": {
+      "Name": "shatteredsky:mushroom_block",
+      "Properties": {
+
+      }
+    },
+    "underwater_material": {
+      "Name": "shatteredsky:mushroom_block",
+      "Properties": {
+        "snowy": "false"
+      }
+    }
+  }
+}

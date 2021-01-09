@@ -19,27 +19,13 @@ public class ModelProvider implements ModelResourceProvider {
 
 	public ModelProvider() {
 		register(id("block/atmosphere"), new AtmosphereModel());
-//		register("block/stone_hedron", new HedronModel(
-//				new SpriteIdentifier(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE, new Identifier("block/stone"))
-//		));
-//
-//		register("block/skymetal_hedron", new FramedHedronModel(
-//				new SpriteIdentifier(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE, ShatteredSky.id("block/hedron_inactive")),
-//				new SpriteIdentifier(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE, ShatteredSky.id("block/hedron_metal_block")),
-//				new SpriteIdentifier(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE, ShatteredSky.id("block/hedron_metal_block")),
-//				new SpriteIdentifier(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE, ShatteredSky.id("block/hedron_metal_block"))
-//		));
-//
-//		register("block/skymetal_hedron_corner", new HedronCorner(
-//				new SpriteIdentifier(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE, ShatteredSky.id("block/hedron_active_silver")),
-//				new SpriteIdentifier(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE, ShatteredSky.id("block/hedron_metal_block")),
-//				new SpriteIdentifier(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE, new Identifier("block/stone_bricks"))
-//		));
-//
-//		register("block/skymetal_hedron_slope", new HedronSlope(
-//				new SpriteIdentifier(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE, ShatteredSky.id("block/hedron_active_silver")),
-//				new SpriteIdentifier(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE, ShatteredSky.id("block/hedron_metal_block")),
-//				new SpriteIdentifier(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE, new Identifier("block/stone_bricks"))
+
+//		register(id("block/sky_dirt"), new SkyDirtBakedModel(
+//				new SpriteIdentifier(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE, new Identifier("block/dirt")),
+//				new SpriteIdentifier(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE, ShatteredSky.id("block/sky_dirt_0")),
+//				new SpriteIdentifier(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE, ShatteredSky.id("block/sky_dirt_1")),
+//				new SpriteIdentifier(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE, ShatteredSky.id("block/sky_dirt_2")),
+//				new SpriteIdentifier(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE, ShatteredSky.id("block/sky_dirt_3"))
 //		));
 
 		HedronTypes.getTypes().forEachRemaining(this::register);

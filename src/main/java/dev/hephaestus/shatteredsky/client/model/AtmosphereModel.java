@@ -16,6 +16,7 @@ import net.minecraft.client.texture.Sprite;
 import net.minecraft.client.texture.SpriteAtlasTexture;
 import net.minecraft.client.util.SpriteIdentifier;
 import net.minecraft.client.util.math.Vector3f;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.BlockRenderView;
@@ -33,7 +34,7 @@ public class AtmosphereModel extends Model {
 	private static final Collection<SpriteIdentifier> SPRITE_COLLECTION = Collections.singleton(SPRITE);
 
 	public AtmosphereModel() {
-		this.sprites = new Sprite[1];
+        super(SPRITE);
 	}
 
 	@Override
@@ -73,32 +74,38 @@ public class AtmosphereModel extends Model {
 	}
 
 	@Override
+	public void emitItemQuads(ItemStack stack, Supplier<Random> randomSupplier, RenderContext context) {
+
+	}
+
+	@Override
 	public @Nullable BakedModel bake(ModelLoader loader, Function<SpriteIdentifier, Sprite> textureGetter, ModelBakeSettings rotationContainer, Identifier modelId) {
-		sprites[0] = textureGetter.apply(SPRITE);
-
 		Renderer renderer = RendererAccess.INSTANCE.getRenderer();
-		MeshBuilder builder = renderer.meshBuilder();
-		QuadEmitter emitter = builder.getEmitter();
 
-		int color = -1;
+		if (renderer != null) {
+			MeshBuilder builder = renderer.meshBuilder();
+			QuadEmitter emitter = builder.getEmitter();
 
-		emitter.pos(0, 0, 0, 0).spriteColor(0, 0, color).sprite(0, 0, 0, 0);
-		emitter.pos(1, 0, 0, 1).spriteColor(1, 0, color).sprite(1, 0, 0, 0);
-		emitter.pos(2, 1, 0, 1).spriteColor(2, 0, color).sprite(2, 0, 0, 0);
-		emitter.pos(3, 1, 0, 0).spriteColor(3, 0, color).sprite(3, 0, 0, 0);
+			int color = -1;
 
-		emitter.spriteBake(0, sprites[0], 0);
-		emitter.emit();
+			emitter.pos(0, 0, 0, 0).spriteColor(0, 0, color).sprite(0, 0, 0, 0);
+			emitter.pos(1, 0, 0, 1).spriteColor(1, 0, color).sprite(1, 0, 0, 0);
+			emitter.pos(2, 1, 0, 1).spriteColor(2, 0, color).sprite(2, 0, 0, 0);
+			emitter.pos(3, 1, 0, 0).spriteColor(3, 0, color).sprite(3, 0, 0, 0);
 
-		emitter.pos(3, 0, 0, 0).spriteColor(3, 0, color).sprite(3, 0, 0, 0);
-		emitter.pos(2, 0, 0, 1).spriteColor(2, 0, color).sprite(2, 0, 0, 0);
-		emitter.pos(1, 1, 0, 1).spriteColor(1, 0, color).sprite(1, 0, 0, 0);
-		emitter.pos(0, 1, 0, 0).spriteColor(0, 0, color).sprite(0, 0, 0, 0);
+			emitter.spriteBake(0, this.sprite, 0);
+			emitter.emit();
 
-		emitter.spriteBake(0, sprites[0], 0);
-		emitter.emit();
+			emitter.pos(3, 0, 0, 0).spriteColor(3, 0, color).sprite(3, 0, 0, 0);
+			emitter.pos(2, 0, 0, 1).spriteColor(2, 0, color).sprite(2, 0, 0, 0);
+			emitter.pos(1, 1, 0, 1).spriteColor(1, 0, color).sprite(1, 0, 0, 0);
+			emitter.pos(0, 1, 0, 0).spriteColor(0, 0, color).sprite(0, 0, 0, 0);
 
-		mesh = builder.build();
+			emitter.spriteBake(0, this.sprite, 0);
+			emitter.emit();
+
+			mesh = builder.build();
+		}
 
 		return this;
 	}

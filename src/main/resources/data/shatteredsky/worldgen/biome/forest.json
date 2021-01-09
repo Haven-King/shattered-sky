@@ -16,7 +16,9 @@
   "surface_builder": "shatteredsky:meadows",
   "carvers": {},
   "features": [
-    [],
+    [
+      "shatteredsky:dummy_consumer"
+    ],
     [],
     [],
     [
@@ -25,7 +27,9 @@
     ],
     [],
     [],
-    [],
+    [
+      "shatteredsky:crystal_ore"
+    ],
     [],
     [
       "minecraft:forest_flower_vegetation",

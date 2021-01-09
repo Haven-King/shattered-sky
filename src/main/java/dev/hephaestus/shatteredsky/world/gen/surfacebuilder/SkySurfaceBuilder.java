@@ -1,8 +1,9 @@
 package dev.hephaestus.shatteredsky.world.gen.surfacebuilder;
 
 import dev.hephaestus.shatteredsky.ShatteredSky;
+import dev.hephaestus.shatteredsky.block.SkyStoneBlock;
+import dev.hephaestus.shatteredsky.block.WorldgenDummyBlock;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.biome.Biome;
@@ -45,9 +46,21 @@ public class SkySurfaceBuilder extends SurfaceBuilder<TernarySurfaceConfig> {
 					--depth;
 					chunk.setBlockState(mut, underMaterial, false);
 				}
+			} else if (currentState.isOf(ShatteredSky.Blocks.WORLDGEN_DUMMY)) {
+				if (depth == -1) {
+					depth = maxDepth;
+					chunk.setBlockState(mut, ShatteredSky.Blocks.WORLDGEN_DUMMY.getDefaultState().with(WorldgenDummyBlock.TYPE, WorldgenDummyBlock.Type.TOP_MATERIAL), false);
+				} else if (depth > 0) {
+					--depth;
+					chunk.setBlockState(mut, ShatteredSky.Blocks.WORLDGEN_DUMMY.getDefaultState().with(WorldgenDummyBlock.TYPE, WorldgenDummyBlock.Type.SUBSTRATE), false);
+				}
 			}
 		}
 
+		this.generateShatteredBottom(height, mut, mut2, relativeX, relativeZ, chunk, defaultBlock, random);
+	}
+
+	protected void generateShatteredBottom(int height, BlockPos.Mutable mut, BlockPos.Mutable mut2, int relativeX, int relativeZ, Chunk chunk, BlockState defaultBlock, Random random) {
 		for (int y = 0; y < height; ++y) {
 			mut.set(relativeX, y, relativeZ);
 			mut2.set(relativeX, y + 1, relativeZ);
@@ -59,7 +72,7 @@ public class SkySurfaceBuilder extends SurfaceBuilder<TernarySurfaceConfig> {
 				for (int i = 0; i < random.nextInt(random.nextInt(3) + 2); ++i) {
 					mut.move(Direction.DOWN, random.nextInt(7));
 
-					chunk.setBlockState(mut, defaultBlock, false);
+					chunk.setBlockState(mut, ShatteredSky.Blocks.SKY_STONE.getDefaultState().with(SkyStoneBlock.SHATTERED, true), false);
 				}
 
 				return;

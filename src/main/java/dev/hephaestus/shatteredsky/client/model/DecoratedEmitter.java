@@ -27,13 +27,15 @@ public class DecoratedEmitter implements QuadEmitter {
     private void vertex(int index, float x, float y, float z, int color, float u, float v) {
         Vector3f pos = new Vector3f(x, y, z);
 
-        pos.add(-0.5F, -0.5F, -0.5F);
-        pos.rotate(this.bakeSettings.getRotation().getRotation2());
-        pos.add(0.5F, 0.5F, 0.5F);
+        if (this.bakeSettings != null) {
+            pos.add(-0.5F, -0.5F, -0.5F);
+            pos.rotate(this.bakeSettings.getRotation().getRotation2());
+            pos.add(0.5F, 0.5F, 0.5F);
+        }
 
         quadEmitter.pos(index, pos).spriteColor(index, 0, color).sprite(index, 0, u, v);
 
-        if (normal != null) {
+        if (normal != null && this.bakeSettings != null) {
             Vector3f normal = this.normal.copy();
             normal.rotate(this.bakeSettings.getRotation().getRotation2());
 

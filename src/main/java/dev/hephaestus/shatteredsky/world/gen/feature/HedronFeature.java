@@ -1,6 +1,5 @@
 package dev.hephaestus.shatteredsky.world.gen.feature;
 
-import com.mojang.serialization.Codec;
 import dev.hephaestus.shatteredsky.block.HedronBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -16,9 +15,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
-public class HedronFeature<T extends HedronFeatureConfig> extends Feature<T> {
-    public HedronFeature(Codec<T> codec) {
-        super(codec);
+public class HedronFeature extends Feature<HedronFeatureConfig> {
+    public HedronFeature() {
+        super(HedronFeatureConfig.CODEC);
     }
 
     @Override
@@ -36,8 +35,12 @@ public class HedronFeature<T extends HedronFeatureConfig> extends Feature<T> {
 
         int r = radius;
 
-        for (int dY = 0; dY >= -radius; --dY, --r) {
+        for (int dY = 0; dY >= -radius * 2; --dY) {
             if (buildSection(region, config, origin, mut, states, r, dY)) return false;
+
+            if (Math.floorMod(dY, 2) == 1) {
+                --r;
+            }
         }
 
         r = radius;
@@ -102,9 +105,7 @@ public class HedronFeature<T extends HedronFeatureConfig> extends Feature<T> {
             return Blocks.AIR.getDefaultState();
         }
 
-        if (dY > 0) {
-            shape = shape.getTallVariant(dY % 2 == 1);
-        }
+        shape = shape.getTallVariant(Math.floorMod(dY, 2) == 1);
 
         return block.getDefaultState().with(Properties.BOTTOM, dY > 0).with(HedronBlock.SHAPE, shape);
     }

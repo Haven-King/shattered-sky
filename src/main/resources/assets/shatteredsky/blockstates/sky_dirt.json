@@ -1,0 +1,21 @@
+{
+  "variants": {
+    "": [
+      {
+        "model": "shatteredsky:block/sky_dirt"
+      },
+      {
+        "model": "shatteredsky:block/sky_dirt",
+        "y": 90
+      },
+      {
+        "model": "shatteredsky:block/sky_dirt",
+        "y": 180
+      },
+      {
+        "model": "shatteredsky:block/sky_dirt",
+        "y": 270
+      }
+    ]
+  }
+}

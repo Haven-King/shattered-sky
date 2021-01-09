@@ -22,6 +22,13 @@ public class BottomTallHedronSlopeTip extends FancyHedronModel {
         final Sprite inner = this.getSprite(this.inner);
 
         emitter.quad(base, MutableQuadView.BAKE_LOCK_UV | MutableQuadView.BAKE_ROTATE_NONE,
+                0, 1, 0, 0, 0,
+                0, 1, 1, 0, 1,
+                1, 1, 1, 1, 1,
+                1, 1, 0, 1, 0
+        );
+
+        emitter.quad(base, MutableQuadView.BAKE_LOCK_UV | MutableQuadView.BAKE_ROTATE_NONE,
                 0, 0, 0, 0, 1,
                 1, 0, 0, 1, 1,
                 1, 0, 0.5F, 1, 0.5F,
@@ -31,20 +38,22 @@ public class BottomTallHedronSlopeTip extends FancyHedronModel {
         emitter.quad(face,
                 0, 0, 0.5F, 0, 1,
                 1, 0, 0.5F, 1, 1,
-                1, 1, 0, 1, 0,
-                0, 1, 0, 0, 0
+                1, 1, 1, 1, 0,
+                0, 1, 1, 0, 0
         );
 
-        emitter.triangle(inner,
-                0, 0, 0, 0, 1,
-                0, 0, 0.5F, 0.5F, 1,
-                0, 1, 0, 0, 0
-        );
-
-        emitter.triangle(inner,
+        emitter.quad(inner,
                 1, 0, 0, 1, 1,
                 1, 1, 0, 1, 0,
+                1, 1, 1, 0, 0,
                 1, 0, 0.5F, 0.5F, 1
+        );
+
+        emitter.quad(inner,
+                0, 0, 0, 0, 1,
+                0, 0, 0.5F, 0.5F, 1,
+                0, 1, 1, 1, 0,
+                0, 1, 0, 0, 0
         );
 
         emitter.quad(inner,

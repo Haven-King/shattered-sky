@@ -13,9 +13,9 @@ import net.minecraft.world.gen.surfacebuilder.TernarySurfaceConfig;
 
 import java.util.Random;
 
-public class PoolsSurfaceBuilder extends SurfaceBuilder<TernarySurfaceConfig> {
+public class PoolsSurfaceBuilder extends SkySurfaceBuilder {
 	public PoolsSurfaceBuilder() {
-		super(TernarySurfaceConfig.CODEC);
+		super();
 	}
 
 	@Override
@@ -59,22 +59,6 @@ public class PoolsSurfaceBuilder extends SurfaceBuilder<TernarySurfaceConfig> {
 			}
 		}
 
-		for (int y = 0; y < height; ++y) {
-			mut.set(relativeX, y, relativeZ);
-			mut2.set(relativeX, y + 1, relativeZ);
-
-			BlockState state = chunk.getBlockState(mut);
-			BlockState nextState = chunk.getBlockState(mut2);
-
-			if (state.isAir() && nextState == defaultBlock) {
-				for (int i = 0; i < random.nextInt(3); ++i) {
-					mut.move(Direction.DOWN, random.nextInt(7));
-
-					chunk.setBlockState(mut, defaultBlock, false);
-				}
-
-				return;
-			}
-		}
+		this.generateShatteredBottom(height, mut, mut2, relativeX, relativeZ, chunk, defaultBlock, random);
 	}
 }

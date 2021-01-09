@@ -22,38 +22,34 @@ public class BottomTallHedronCornerBase extends FancyHedronModel {
         final Sprite inner = this.getSprite(this.inner);
 
         emitter.quad(base, MutableQuadView.BAKE_LOCK_UV | MutableQuadView.BAKE_ROTATE_NONE,
-                0, 0, 1, 0, 0,
-                0, 0, 0, 0, 1,
-                1, 0, 0, 1, 1,
-                1, 0, 1, 1, 0
+                0, 1, 0, 0, 0,
+                0, 1, 0.5F, 0, 0.5F,
+                0.5F, 1, 0.5F, 0.5F, 0.5F,
+                0.5F, 1, 0, 1, 0
         );
 
-        emitter.quad(face,
-                0, 0, 1, 0, 1,
-                1, 0, 1, 1, 1,
+        emitter.triangle(face,
+                0, 0, 0, 0, 1,
                 0.5F, 1, 0.5F, 0.5F, 0,
                 0, 1, 0.5F, 0, 0
         );
 
-        emitter.quad(face,
-                1, 0, 0, 1, 1,
+        emitter.triangle(face,
+                0, 0, 0, 1, 1,
                 0.5F, 1, 0, 1, 0,
-                0.5F, 1, 0.5F, 0.5F, 0,
-                1, 0, 1, 0, 1
+                0.5F, 1, 0.5F, 0.5F, 0
         );
 
-        emitter.quad(inner,
+        emitter.triangle(inner,
                 0, 0, 0, 0, 1,
-                0, 0, 1, 1, 1,
                 0, 1, 0.5F, 0.5F, 0,
                 0, 1, 0, 0, 0
         );
 
-        emitter.quad(inner,
+        emitter.triangle(inner,
                 0, 0, 0, 1, 1,
                 0, 1, 0, 1, 0,
-                0.5F, 1, 0, 0.5F, 0,
-                1, 0, 0, 0, 1
+                0.5F, 1, 0, 0.5F, 0
         );
     }
 }

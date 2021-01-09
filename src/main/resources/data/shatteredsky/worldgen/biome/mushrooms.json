@@ -1,0 +1,42 @@
+{
+  "precipitation": "none",
+  "category": "none",
+  "depth": 0.125,
+  "scale": 0.05,
+  "temperature": 0.5,
+  "downfall": 0.0,
+  "effects": {
+    "sky_color": 7284534,
+    "fog_color": 4382028,
+    "grass_color": 7284534,
+    "foliage_color": 7284534,
+    "water_color": 4159204,
+    "water_fog_color": 329011
+  },
+  "surface_builder": "shatteredsky:mushrooms",
+  "carvers": {},
+  "features": [
+    [
+      "shatteredsky:mushroom_shelf",
+      "shatteredsky:dummy_consumer"
+    ],
+    [],
+    [],
+    [
+      "shatteredsky:small_hedrons",
+      "shatteredsky:small_hedrons_upper"
+    ],
+    [],
+    [],
+    [
+    ],
+    [],
+    [],
+    []
+  ],
+  "starts": [
+  ],
+  "spawners": {
+  },
+  "spawn_costs": {}
+}

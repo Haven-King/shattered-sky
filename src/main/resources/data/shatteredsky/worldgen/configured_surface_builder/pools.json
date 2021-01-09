@@ -16,7 +16,7 @@
     "underwater_material": {
       "Name": "minecraft:dirt",
       "Properties": {
-        "snowy": "false"
+
       }
     }
   }

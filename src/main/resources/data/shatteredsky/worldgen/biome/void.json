@@ -16,7 +16,9 @@
   "surface_builder": "shatteredsky:void",
   "carvers": {},
   "features": [
-    [],
+    [
+      "shatteredsky:dummy_consumer"
+    ],
     [
       "minecraft:lake_lava"
     ],

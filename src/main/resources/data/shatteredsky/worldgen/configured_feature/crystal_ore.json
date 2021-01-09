@@ -1,0 +1,54 @@
+{
+  "config": {
+    "feature": {
+      "config": {
+        "feature": {
+          "config": {
+            "feature": {
+              "config": {
+                "target": {
+                  "block_state": {
+                    "Name": "shatteredsky:sky_stone",
+                    "Properties": {
+                      "shattered": "false"
+                    }
+                  },
+                  "predicate_type": "minecraft:blockstate_match"
+                },
+                "state": {
+                  "Name": "shatteredsky:crystal_ore",
+                  "Properties": {
+                    "facing": "north"
+                  }
+                },
+                "size": 9
+              },
+              "type": "minecraft:ore"
+            },
+            "decorator": {
+              "config": {
+                "bottom_offset": 0,
+                "top_offset": 0,
+                "maximum": 64
+              },
+              "type": "minecraft:range"
+            }
+          },
+          "type": "minecraft:decorated"
+        },
+        "decorator": {
+          "config": {},
+          "type": "minecraft:square"
+        }
+      },
+      "type": "minecraft:decorated"
+    },
+    "decorator": {
+      "config": {
+        "count": 20
+      },
+      "type": "minecraft:count"
+    }
+  },
+  "type": "minecraft:decorated"
+}

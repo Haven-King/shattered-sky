@@ -1,10 +1,9 @@
 package dev.hephaestus.shatteredsky.world.gen.feature;
 
-import com.mojang.datafixers.Products;
-import com.mojang.datafixers.kinds.App;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.PrimitiveCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.hephaestus.shatteredsky.util.Range;
 import net.minecraft.block.Block;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
@@ -67,18 +66,4 @@ public class HedronFeatureConfig implements FeatureConfig {
         return this.y.max;
     }
 
-    public static class Range {
-        public static final Codec<Range> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-                PrimitiveCodec.INT.fieldOf("min").forGetter(range -> range.min),
-                PrimitiveCodec.INT.fieldOf("max").forGetter(range -> range.max)
-        ).apply(instance, Range::new));
-
-        public final int min;
-        public final int max;
-
-        private Range(int min, int max) {
-            this.min = min;
-            this.max = max;
-        }
-    }
 }

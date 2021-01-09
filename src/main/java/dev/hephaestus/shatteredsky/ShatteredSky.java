@@ -1,8 +1,6 @@
 package dev.hephaestus.shatteredsky;
 
-import dev.hephaestus.shatteredsky.block.AtmosphereBlock;
-import dev.hephaestus.shatteredsky.block.HedronBlock;
-import dev.hephaestus.shatteredsky.block.HedronTypes;
+import dev.hephaestus.shatteredsky.block.*;
 import dev.hephaestus.shatteredsky.client.model.ModelProvider;
 import dev.hephaestus.shatteredsky.client.render.ShatteredSkyProperties;
 import dev.hephaestus.shatteredsky.data.SkyFalls;
@@ -14,8 +12,10 @@ import dev.hephaestus.shatteredsky.util.ChunkDataRegistry;
 import dev.hephaestus.shatteredsky.util.RegistryUtil;
 import dev.hephaestus.shatteredsky.util.SyncedChunkData;
 import dev.hephaestus.shatteredsky.world.gen.chunk.NoiseChunkGenerator;
+import dev.hephaestus.shatteredsky.world.gen.feature.DummyBlockConsumer;
 import dev.hephaestus.shatteredsky.world.gen.feature.HedronFeature;
-import dev.hephaestus.shatteredsky.world.gen.feature.HedronFeatureConfig;
+import dev.hephaestus.shatteredsky.world.gen.feature.RandomFacingOreFeature;
+import dev.hephaestus.shatteredsky.world.gen.feature.ShelfFeature;
 import dev.hephaestus.shatteredsky.world.gen.surfacebuilder.PoolsSurfaceBuilder;
 import dev.hephaestus.shatteredsky.world.gen.surfacebuilder.SkySurfaceBuilder;
 import grondag.frex.api.event.RenderRegionBakeListener;
@@ -42,6 +42,7 @@ import net.minecraft.client.texture.SpriteAtlasTexture;
 import net.minecraft.client.util.SpriteIdentifier;
 import net.minecraft.fluid.FlowableFluid;
 import net.minecraft.fluid.Fluid;
+import net.minecraft.item.ArmorMaterials;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.util.Identifier;
@@ -51,10 +52,8 @@ import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.dimension.DimensionType;
 import net.minecraft.world.gen.feature.Feature;
 import net.minecraft.world.gen.feature.FeatureConfig;
+import net.minecraft.world.gen.feature.OreFeatureConfig;
 import net.minecraft.world.level.ColorResolver;
-import org.apache.commons.lang3.mutable.MutableInt;
-
-//import grondag.frex.api.event.WorldRenderEvents;
 
 public class ShatteredSky implements ModInitializer, ClientModInitializer {
 	public static final String MOD_ID = "shatteredsky";
@@ -81,8 +80,6 @@ public class ShatteredSky implements ModInitializer, ClientModInitializer {
 		Fluids.initClient();
 		Networking.initClient();
 		World.initClient();
-
-//		WorldRenderEvents.AFTER_ENTITIES.register(RenderFluidLayer.INSTANCE);
 	}
 
 	public static Identifier id(String... path) {
@@ -99,12 +96,22 @@ public class ShatteredSky implements ModInitializer, ClientModInitializer {
 		public static final Block STONE_HEDRON = new HedronBlock(net.minecraft.block.Blocks.STONE);
 		public static final Block SKYMETAL_BLOCK = new Block(FabricBlockSettings.of(Material.METAL));
 		public static final Block SKYMETAL_HEDRON = new HedronBlock(FabricBlockSettings.of(Material.METAL).luminance(15).emissiveLighting((state, world, pos) -> true));
+		public static final Block CRYSTAL_ORE = new Block(FabricBlockSettings.of(Material.STONE));
+		public static final Block SKY_DIRT = new Block(FabricBlockSettings.of(Material.SOIL));
+		public static final Block SKY_STONE = new SkyStoneBlock(FabricBlockSettings.of(Material.STONE));
+		public static final Block WORLDGEN_DUMMY = new WorldgenDummyBlock(FabricBlockSettings.of(Material.STONE));
+		public static final Block MUSHROOM_BLOCK = new Block(FabricBlockSettings.of(Material.PLANT));
 
-		static {
+        static {
 			register("atmosphere", ATMOSPHERE_BLOCK);
 			register("stone_hedron", STONE_HEDRON);
 			register("skymetal_hedron", SKYMETAL_HEDRON);
 			register("skymetal_block", SKYMETAL_BLOCK);
+			register("crystal_ore", CRYSTAL_ORE);
+			register("sky_dirt", SKY_DIRT);
+			register("sky_stone", SKY_STONE);
+			register("worldgen_dummy", WORLDGEN_DUMMY);
+			register("mushroom_block", MUSHROOM_BLOCK);
 
 			HedronTypes.register(id("stone_hedron"),
 					new SpriteIdentifier(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE, new Identifier("block/stone"))
@@ -127,7 +134,34 @@ public class ShatteredSky implements ModInitializer, ClientModInitializer {
 		@Environment(EnvType.CLIENT)
 		public static void initClient() {
 			BlockRenderLayerMap.INSTANCE.putBlock(ATMOSPHERE_BLOCK, RenderLayer.getTranslucent());
-			ColorProviderRegistry.BLOCK.register((state, world, pos, tintIndex) -> ((BlockColorProvider) state.getBlock()).getColor(state, world, pos, tintIndex), ATMOSPHERE_BLOCK);
+			ColorProviderRegistry.BLOCK.register((state, world, pos, tintIndex) ->
+			{
+				int color = ((BlockColorProvider) state.getBlock()).getColor(state, world, pos, tintIndex);
+
+				if (pos != null /* && Config.atmosphereSmoothingRadius > 0 */) {
+					int radius = 10; // TODO Smoothing config.
+					int r = 0, g = 0, b = 0;
+
+					for (BlockPos blockPos : BlockPos.iterate(pos.add(-radius, 0, -radius), pos.add(radius, 0, radius))) {
+						int here = ((BlockColorProvider) state.getBlock()).getColor(state, world, blockPos, tintIndex);
+						r += (here >> 16) & 0xFF;
+						g += (here >> 8) & 0xFF;
+						b += here & 0xFF;
+					}
+
+					int total = (radius * 2 + 1) * (radius * 2 + 1);
+					r /= total;
+					g /= total;
+					b /= total;
+
+					color = (color & 0xFF000000)
+							| r << 16
+							| g << 8
+							| b;
+				}
+
+				return color;
+			}, ATMOSPHERE_BLOCK);
 		}
 	}
 
@@ -135,11 +169,19 @@ public class ShatteredSky implements ModInitializer, ClientModInitializer {
 		public static final BlockItem STONE_HEDRON = new BlockItem(Blocks.STONE_HEDRON, new Item.Settings());
 		public static final BlockItem SKYMETAL_HEDRON = new BlockItem(Blocks.SKYMETAL_HEDRON, new Item.Settings());
 		public static final BlockItem SKYMETAL_BLOCK = new BlockItem(Blocks.SKYMETAL_BLOCK, new Item.Settings());
+		public static final BlockItem CRYSTAL_ORE = new BlockItem(Blocks.CRYSTAL_ORE, new Item.Settings());
+		public static final BlockItem SKY_DIRT = new BlockItem(Blocks.SKY_DIRT, new Item.Settings());
+		public static final BlockItem SKY_STONE = new BlockItem(Blocks.SKY_STONE, new Item.Settings());
+		public static final BlockItem MUSHROOM_BLOCK = new BlockItem(Blocks.MUSHROOM_BLOCK, new Item.Settings());
 
 		static {
 			register("stone_hedron", STONE_HEDRON);
 			register("skymetal_hedron", SKYMETAL_HEDRON);
 			register("skymetal_block", SKYMETAL_BLOCK);
+			register("crystal_ore", CRYSTAL_ORE);
+			register("sky_dirt", SKY_DIRT);
+			register("sky_stone", SKY_STONE);
+			register("mushroom_block", MUSHROOM_BLOCK);
 		}
 
 		public static void init() {
@@ -186,8 +228,11 @@ public class ShatteredSky implements ModInitializer, ClientModInitializer {
 			Registry.register(Registry.SURFACE_BUILDER, id("default"), new SkySurfaceBuilder());
 			Registry.register(Registry.SURFACE_BUILDER, id("pools"), new PoolsSurfaceBuilder());
 
-			register("solid_hedron", new HedronFeature<>(HedronFeatureConfig.CODEC));
-			register("capped_hedron", new HedronFeature<>(HedronFeatureConfig.CODEC));
+			register("solid_hedron", new HedronFeature());
+			register("capped_hedron", new HedronFeature());
+			register("facing_ore", new RandomFacingOreFeature(OreFeatureConfig.CODEC));
+			register("shelf", new ShelfFeature());
+			register("dummy", new DummyBlockConsumer());
 		}
 
 		public static void initClient() {
@@ -200,27 +245,22 @@ public class ShatteredSky implements ModInitializer, ClientModInitializer {
 				int min = Math.min(context.origin().getY(), context.origin().getY() + context.ySize() - 1);
 				int max = Math.max(context.origin().getY(), context.origin().getY() + context.ySize() - 1);
 
-				// The predicate doesn't seem to be begin checked properly
-				if (((min <= 10 && max >= 10) || (min <= 70) && max >= 70)
-						&& RegistryUtil.dimensionMatches(MinecraftClient.getInstance().world, ShatteredSky.DIMENSION_TYPE)) {
+				// Without the `if` statement above, I will occasionally crash with an
+				// `ArrayIndexOutOfBoundsException`. This is presumably because when 10 is not between the min and
+				// max, we use a y value of 70. Theoretically, if this bake method only fires when the condition has
+				// been satisfied, this isn't a problem, but clearly that's not the case.
+				BlockPos pos = new BlockPos(
+						context.origin().getX(),
+						(min <= 10 && max >= 10) ? 10 : 70,
+						context.origin().getZ());
 
-					// Without the `if` statement above, I will occasionally crash with an
-					// `ArrayIndexOutOfBoundsException`. This is presumably because when 10 is not between the min and
-					// max, we use a y value of 70. Theoretically, if this bake method only fires when the condition has
-					// been satisfied, this isn't a problem, but clearly that's not the case.
-					BlockPos pos = new BlockPos(
-							context.origin().getX(),
-							(min <= 10 && max >= 10) ? 10 : 70,
-							context.origin().getZ());
+				BlockState state = ShatteredSky.Blocks.ATMOSPHERE_BLOCK.getDefaultState();
 
-					BlockState state = ShatteredSky.Blocks.ATMOSPHERE_BLOCK.getDefaultState();
-
-					// This isn't a huge deal, but with iterate being fully inclusive, this `size - 1` thing is a bit of
-					// a pain.
-					BlockPos.iterate(pos, pos.add(context.xSize() - 1, 0, context.zSize() - 1)).forEach(blockPos -> {
-						renderer.bake(blockPos, state);
-					});
-				}
+				// This isn't a huge deal, but with iterate being fully inclusive, this `size - 1` thing is a bit of
+				// a pain.
+				BlockPos.iterate(pos, pos.add(context.xSize() - 1, 0, context.zSize() - 1)).forEach(blockPos -> {
+					renderer.bake(blockPos, state);
+				});
 			});
 		}
 

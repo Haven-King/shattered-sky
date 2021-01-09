@@ -1,0 +1,6 @@
+newmtl sprite
+texture shatteredsky:block/sky_stone
+
+newmtl crystals
+ambient_occlusion true
+texture minecraft:block/diamond_block

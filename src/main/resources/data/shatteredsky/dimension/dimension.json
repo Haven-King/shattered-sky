@@ -6,7 +6,7 @@
     "biome_source": {
       "type": "minecraft:multi_noise",
       "altitude_noise": {
-        "firstOctave": -8,
+        "firstOctave": -12,
         "amplitudes": [
           1,
           1
@@ -71,6 +71,16 @@
             "temperature": 0.25,
             "humidity": 0.01,
             "weirdness": -0.5,
+            "offset": 0
+          }
+        },
+        {
+          "biome": "shatteredsky:mushrooms",
+          "parameters": {
+            "altitude": 0.5,
+            "temperature": 0.25,
+            "humidity": 0.25,
+            "weirdness": 0.8,
             "offset": 0
           }
         }

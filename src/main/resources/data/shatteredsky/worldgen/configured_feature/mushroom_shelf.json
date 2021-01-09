@@ -1,0 +1,15 @@
+{
+  "type": "shatteredsky:shelf",
+  "config": {
+    "block_state": {
+      "Name": "shatteredsky:mushroom_block",
+      "Properties": {
+
+      }
+    },
+    "radius": {
+      "min": 2,
+      "max": 9
+    }
+  }
+}

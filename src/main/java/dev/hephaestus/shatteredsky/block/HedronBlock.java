@@ -42,6 +42,8 @@ public class HedronBlock extends Block {
 		this.setDefaultState(this.getStateManager().getDefaultState()
 				.with(SHAPE, Shape.POINT)
 				.with(Properties.BOTTOM, true));
+
+
 	}
 
 	@Override

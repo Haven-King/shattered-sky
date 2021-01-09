@@ -1,0 +1,38 @@
+{
+  "variants": {
+    "": [
+      { "model":  "shatteredsky:block/large_1", "weight": 1, "y": 0 },
+      { "model":  "shatteredsky:block/large_2", "weight": 1, "y": 0 },
+      { "model":  "shatteredsky:block/drip_1", "weight": 2, "y": 0 },
+      { "model":  "shatteredsky:block/drip_1", "weight": 2, "y": 0 },
+      { "model":  "shatteredsky:block/drip_1", "weight": 2, "y": 0 },
+      { "model":  "shatteredsky:block/normal_1", "weight": 30, "y": 0 },
+      { "model":  "shatteredsky:block/normal_2", "weight": 30, "y": 0 },
+      { "model":  "shatteredsky:block/normal_3", "weight": 30, "y": 0 },
+      { "model":  "shatteredsky:block/large_1", "weight": 1, "y": 90 },
+      { "model":  "shatteredsky:block/large_2", "weight": 1, "y": 90 },
+      { "model":  "shatteredsky:block/drip_1", "weight": 2, "y": 90 },
+      { "model":  "shatteredsky:block/drip_1", "weight": 2, "y": 90 },
+      { "model":  "shatteredsky:block/drip_1", "weight": 2, "y": 90 },
+      { "model":  "shatteredsky:block/normal_1", "weight": 30, "y": 90 },
+      { "model":  "shatteredsky:block/normal_2", "weight": 30, "y": 90 },
+      { "model":  "shatteredsky:block/normal_3", "weight": 30, "y": 90 },
+      { "model":  "shatteredsky:block/large_1", "weight": 1, "y": 180 },
+      { "model":  "shatteredsky:block/large_2", "weight": 1, "y": 180 },
+      { "model":  "shatteredsky:block/drip_1", "weight": 2, "y": 180 },
+      { "model":  "shatteredsky:block/drip_1", "weight": 2, "y": 180 },
+      { "model":  "shatteredsky:block/drip_1", "weight": 2, "y": 180 },
+      { "model":  "shatteredsky:block/normal_1", "weight": 30, "y": 180 },
+      { "model":  "shatteredsky:block/normal_2", "weight": 30, "y": 180 },
+      { "model":  "shatteredsky:block/normal_3", "weight": 30, "y": 180 },
+      { "model":  "shatteredsky:block/large_1", "weight": 1, "y": 270 },
+      { "model":  "shatteredsky:block/large_2", "weight": 1, "y": 270 },
+      { "model":  "shatteredsky:block/drip_1", "weight": 2, "y": 270 },
+      { "model":  "shatteredsky:block/drip_1", "weight": 2, "y": 270 },
+      { "model":  "shatteredsky:block/drip_1", "weight": 2, "y": 270 },
+      { "model":  "shatteredsky:block/normal_1", "weight": 30, "y": 270 },
+      { "model":  "shatteredsky:block/normal_2", "weight": 30, "y": 270 },
+      { "model":  "shatteredsky:block/normal_3", "weight": 30, "y": 270 }
+    ]
+  }
+}
