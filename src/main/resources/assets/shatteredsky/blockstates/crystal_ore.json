@@ -1,0 +1,17 @@
+{
+  "multipart": [
+    {
+      "apply": { "model": "shatteredsky:block/sky_stone", "uvlock": true}
+    },
+    {
+      "apply": [
+        { "model": "shatteredsky:block/crystal_ore" },
+        { "model": "shatteredsky:block/crystal_ore", "y": 90 },
+        { "model": "shatteredsky:block/crystal_ore", "y": 180 },
+        { "model": "shatteredsky:block/crystal_ore", "y": 270 },
+        { "model": "shatteredsky:block/crystal_ore", "x": 90 },
+        { "model": "shatteredsky:block/crystal_ore", "x": 270 }
+      ]
+    }
+  ]
+}

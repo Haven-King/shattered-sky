@@ -5,9 +5,9 @@
   "compatibilityLevel": "JAVA_8",
   "mixins": [
     "block.SpreadableBlockMixin",
-    "client.render.chunk.ChunkRendererRegionMixin",
     "client.world.ClientWorldMixin",
     "entity.EntityMixin",
+    "entity.ShapeContextMixin",
     "fluid.FlowableFluidMixin",
     "world.SerializeChunkData",
     "world.StoreChunkData",
@@ -17,10 +17,8 @@
   ],
   "client": [
     "client.render.BackgroundRendererMixin",
-    "client.render.RenderLayersAccessor",
     "client.render.SkyPropertiesAccessor",
     "client.render.WorldRendererMixin",
-    "client.render.chunk.ChunkBuilderMixin",
     "client.render.model.ModelLoaderAccessor"
   ],
   "injectors": {

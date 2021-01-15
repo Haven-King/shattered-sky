@@ -1,5 +1,7 @@
 newmtl sprite
-texture shatteredsky:block/sky_stone
+ambient_occlusion true
+uvlock true
+texture shattered-sky:block/sky_stone
 
 newmtl crystals
 ambient_occlusion true

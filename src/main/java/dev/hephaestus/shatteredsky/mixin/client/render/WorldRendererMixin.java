@@ -15,11 +15,11 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 public class WorldRendererMixin {
     @Redirect(method = "renderSky", at = @At(value = "FIELD", target = "Lnet/minecraft/util/math/Vec3d;y:D", opcode = Opcodes.GETFIELD, ordinal = 1))
     private double dontRenderVoid(Vec3d vec3d) {
-        return MinecraftClient.getInstance().world != null && RegistryUtil.dimensionMatches(MinecraftClient.getInstance().world, ShatteredSky.DIMENSION_TYPE) ? Double.MAX_VALUE : vec3d.y;
+        return RegistryUtil.dimensionMatches(MinecraftClient.getInstance().world, ShatteredSky.DIMENSION_TYPE) ? Double.MAX_VALUE : vec3d.y;
     }
 
     @Redirect(method = "renderSky", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/world/ClientWorld$Properties;getSkyDarknessHeight()D"))
     private double dontRenderVoid(ClientWorld.Properties properties) {
-        return MinecraftClient.getInstance().world != null && RegistryUtil.dimensionMatches(MinecraftClient.getInstance().world, ShatteredSky.DIMENSION_TYPE) ? 0 : properties.getSkyDarknessHeight();
+        return RegistryUtil.dimensionMatches(MinecraftClient.getInstance().world, ShatteredSky.DIMENSION_TYPE) ? 0 : properties.getSkyDarknessHeight();
     }
 }

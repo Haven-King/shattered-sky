@@ -5,6 +5,8 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.hephaestus.seedy.SeedSupplier;
 import dev.hephaestus.shatteredsky.ShatteredSky;
 import dev.hephaestus.shatteredsky.mixin.world.gen.chunk.ChunkGeneratorSettingsAccessor;
+import dev.hephaestus.shatteredsky.util.math.noise.RidgedOctavePerlinNoiseSampler;
+import dev.hephaestus.shatteredsky.world.gen.surfacebuilder.SkySurfaceBuilder;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import net.fabricmc.api.EnvType;
@@ -35,6 +37,8 @@ import net.minecraft.world.gen.chunk.ChunkGeneratorSettings;
 import net.minecraft.world.gen.chunk.GenerationShapeConfig;
 import net.minecraft.world.gen.chunk.VerticalBlockSample;
 import net.minecraft.world.gen.feature.StructureFeature;
+import net.minecraft.world.gen.surfacebuilder.ConfiguredSurfaceBuilder;
+import net.minecraft.world.gen.surfacebuilder.TernarySurfaceConfig;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Iterator;
@@ -83,10 +87,10 @@ public final class NoiseChunkGenerator extends ChunkGenerator {
    private final OctavePerlinNoiseSampler lowerInterpolatedNoise;
    private final OctavePerlinNoiseSampler upperInterpolatedNoise;
    private final OctavePerlinNoiseSampler interpolationNoise;
+   private final RidgedOctavePerlinNoiseSampler riverNoise;
    private final NoiseSampler surfaceDepthNoise;
    private final OctavePerlinNoiseSampler densityNoise;
    @Nullable
-   private final SimplexNoiseSampler islandNoise;
    protected final BlockState defaultBlock;
    protected final BlockState defaultFluid;
    private final long seed;
@@ -115,17 +119,10 @@ public final class NoiseChunkGenerator extends ChunkGenerator {
       this.lowerInterpolatedNoise = new OctavePerlinNoiseSampler(this.random, IntStream.rangeClosed(-15, 0));
       this.upperInterpolatedNoise = new OctavePerlinNoiseSampler(this.random, IntStream.rangeClosed(-15, 0));
       this.interpolationNoise = new OctavePerlinNoiseSampler(this.random, IntStream.rangeClosed(-7, 0));
+      this.riverNoise = new RidgedOctavePerlinNoiseSampler(this.random, IntStream.rangeClosed(-3, 0));
       this.surfaceDepthNoise = (NoiseSampler)(generationShapeConfig.hasSimplexSurfaceNoise() ? new OctaveSimplexNoiseSampler(this.random, IntStream.rangeClosed(-3, 0)) : new OctavePerlinNoiseSampler(this.random, IntStream.rangeClosed(-3, 0)));
       this.random.consume(2620);
       this.densityNoise = new OctavePerlinNoiseSampler(this.random, IntStream.rangeClosed(-15, 0));
-      if (generationShapeConfig.hasIslandNoiseOverride()) {
-         ChunkRandom chunkRandom = new ChunkRandom(seed);
-         chunkRandom.consume(17292);
-         this.islandNoise = new SimplexNoiseSampler(chunkRandom);
-      } else {
-         this.islandNoise = null;
-      }
-
    }
 
    protected Codec<? extends ChunkGenerator> getCodec() {
@@ -138,7 +135,7 @@ public final class NoiseChunkGenerator extends ChunkGenerator {
    }
 
    public boolean matchesSettings(long seed, RegistryKey<ChunkGeneratorSettings> settingsKey) {
-      return this.seed == seed && ((ChunkGeneratorSettings)this.settings.get()).equals(settingsKey);
+      return this.seed == seed && this.settings.get().equals(settingsKey);
    }
 
    private double sampleNoise(int x, int y, int z, double horizontalScale, double verticalScale, double horizontalStretch, double verticalStretch) {
@@ -190,62 +187,53 @@ public final class NoiseChunkGenerator extends ChunkGenerator {
       int chunksChecked = 0;
       int otherBiomeChunks = 0;
 
-      if (this.islandNoise != null) {
-         d0 = TheEndBiomeSource.getNoiseAt(this.islandNoise, x, z) - 8.0F;
-         if (d0 > 0.0D) {
-            d1 = 0.25D;
-         } else {
-            d1 = 1.0D;
-         }
-      } else {
-         float g = 0.0F;
-         float h = 0.0F;
-         float i = 0.0F;
-         int seaLevel = this.getSeaLevel();
-         Biome biome = this.populationSource.getBiomeForNoiseGen(x, seaLevel, z);
-         float depth = biome.getDepth();
+      float g = 0.0F;
+      float h = 0.0F;
+      float i = 0.0F;
+      int seaLevel = this.getSeaLevel();
+      Biome biome = this.populationSource.getBiomeForNoiseGen(x, seaLevel, z);
+      float depth = biome.getDepth();
 
-         for(int m = -4; m <= 4; ++m) {
-            for (int n = -4; n <= 4; ++n) {
-               Biome neighbor = this.populationSource.getBiomeForNoiseGen(x + m, seaLevel, z + n);
+      for(int m = -4; m <= 4; ++m) {
+         for (int n = -4; n <= 4; ++n) {
+            Biome neighbor = this.populationSource.getBiomeForNoiseGen(x + m, seaLevel, z + n);
 
-               ++chunksChecked;
+            ++chunksChecked;
 
-               if (neighbor != biome) {
-                  ++otherBiomeChunks;
-               }
+            if (neighbor != biome) {
+               ++otherBiomeChunks;
             }
          }
-
-         for(int m = -4; m <= 4; ++m) {
-            for(int n = -4; n <= 4; ++n) {
-               Biome neighbor = this.populationSource.getBiomeForNoiseGen(x + m, seaLevel, z + n);
-
-               float neighborDepth = neighbor.getDepth();
-               float neighborScale = neighbor.getScale();
-               float modifiedDepth = neighborDepth;
-               float modifiedScale = neighborScale;
-
-               if (generationShapeConfig.isAmplified() && neighborDepth > 0.0F) {
-                  modifiedDepth = 1.0F + neighborDepth * 2.0F;
-                  modifiedScale = 1.0F + neighborScale * 4.0F;
-               }
-
-               float u = neighborDepth > depth ? 0.5F : 1.0F;
-               float v = u * BIOME_WEIGHT_TABLE[m + 4 + (n + 4) * 5] / (modifiedDepth + 2.0F);
-               g += modifiedScale * v;
-               h += modifiedDepth * v;
-               i += v;
-            }
-         }
-
-         float w = h / i;
-         float y = g / i;
-         float c = w * 0.5F - 0.125F;
-         float d = y * 0.9F + 0.1F;
-         d0 = c * 0.265625D;
-         d1 = 96.0D / d;
       }
+
+      for(int m = -4; m <= 4; ++m) {
+         for(int n = -4; n <= 4; ++n) {
+            Biome neighbor = this.populationSource.getBiomeForNoiseGen(x + m, seaLevel, z + n);
+
+            float neighborDepth = neighbor.getDepth();
+            float neighborScale = neighbor.getScale();
+            float modifiedDepth = neighborDepth;
+            float modifiedScale = neighborScale;
+
+            if (generationShapeConfig.isAmplified() && neighborDepth > 0.0F) {
+               modifiedDepth = 1.0F + neighborDepth * 2.0F;
+               modifiedScale = 1.0F + neighborScale * 4.0F;
+            }
+
+            float u = neighborDepth > depth ? 0.5F : 1.0F;
+            float v = u * BIOME_WEIGHT_TABLE[m + 4 + (n + 4) * 5] / (modifiedDepth + 2.0F);
+            g += modifiedScale * v;
+            h += modifiedDepth * v;
+            i += v;
+         }
+      }
+
+      float w = h / i;
+      float y = g / i;
+      float c = w * 0.5F - 0.125F;
+      float d = y * 0.9F + 0.1F;
+      d0 = c * 0.265625D;
+      d1 = 96.0D / d;
 
       double xzScale = 684.412D * generationShapeConfig.getSampling().getXZScale();
       double yScale = 684.412D * generationShapeConfig.getSampling().getYScale();
@@ -267,9 +255,9 @@ public final class NoiseChunkGenerator extends ChunkGenerator {
          bottomSlideSize *= f;
       }
 
-      for(int i = 0; i <= this.noiseSizeY; ++i) {
-         double noise = this.sampleNoise(x, i, z, xzScale, yScale, modifiedXzScale, modifiedYScale);
-         double d3 = 1.0D - (double)i * 2.0D / (double)this.noiseSizeY + density;
+      for(int j = 0; j <= this.noiseSizeY; ++j) {
+         double noise = this.sampleNoise(x, j, z, xzScale, yScale, modifiedXzScale, modifiedYScale);
+         double d3 = 1.0D - (double)j * 2.0D / (double)this.noiseSizeY + density;
          double d4 = d3 * densityFactor + densityOffset;
          double d5 = (d4 + d0) * d1;
          if (d5 > 0.0D) {
@@ -279,16 +267,16 @@ public final class NoiseChunkGenerator extends ChunkGenerator {
          }
 
          if (topSlideSize > 0.0D) {
-            double d6 = ((double)(this.noiseSizeY - i) - topSlideOffset) / topSlideSize;
+            double d6 = ((double)(this.noiseSizeY - j) - topSlideOffset) / topSlideSize;
             noise = MathHelper.clampedLerp(topSlideTarget, noise, d6);
          }
 
          if (bottomSlideSize > 0.0D) {
-            double d6 = ((double)i - bottomSlideOffset) / bottomSlideSize;
+            double d6 = ((double)j - bottomSlideOffset) / bottomSlideSize;
             noise = MathHelper.clampedLerp(bottomSlideTarget, noise, d6);
          }
 
-         buffer[i] = noise;
+         buffer[j] = noise;
       }
 
    }
@@ -312,7 +300,7 @@ public final class NoiseChunkGenerator extends ChunkGenerator {
 
    public BlockView getColumnSample(int x, int z) {
       BlockState[] blockStates = new BlockState[this.noiseSizeY * this.verticalNoiseResolution];
-      this.sampleHeightmap(x, z, blockStates, (Predicate)null);
+      this.sampleHeightmap(x, z, blockStates, null);
       return new VerticalBlockSample(blockStates);
    }
 
@@ -375,16 +363,24 @@ public final class NoiseChunkGenerator extends ChunkGenerator {
       ChunkPos chunkPos2 = chunk.getPos();
       int k = chunkPos2.getStartX();
       int l = chunkPos2.getStartZ();
-      double d = 0.0625D;
       BlockPos.Mutable mutable = new BlockPos.Mutable();
 
       for(int m = 0; m < 16; ++m) {
          for(int n = 0; n < 16; ++n) {
-            int o = k + m;
-            int p = l + n;
+            int x = k + m;
+            int z = l + n;
             int q = chunk.sampleHeightmap(Heightmap.Type.WORLD_SURFACE_WG, m, n) + 1;
-            double e = this.surfaceDepthNoise.sample((double)o * 0.0625D, (double)p * 0.0625D, 0.0625D, (double)m * 0.0625D) * 15.0D;
-            region.getBiome(mutable.set(k + m, q, l + n)).buildSurface(chunkRandom, chunk, o, p, q, e, this.defaultBlock, this.defaultFluid, this.getSeaLevel(), region.getSeed());
+            double surfaceDepthNoise = this.surfaceDepthNoise.sample((double)x * 0.0625D, (double)z * 0.0625D, 0.0625D, (double)m * 0.0625D) * 15.0D;
+            double riverNoise = this.riverNoise.sample((double)x * 0.0625D, (double)z * 0.0625D, 0.0625D, (double)m * 0.0625D) * 15.0D;
+            Biome biome = region.getBiome(mutable.set(k + m, q, l + n));
+            ConfiguredSurfaceBuilder<?> configuredSurfaceBuilder = biome.getGenerationSettings().getSurfaceBuilder().get();
+            configuredSurfaceBuilder.initSeed(seed);
+
+            if (configuredSurfaceBuilder.surfaceBuilder instanceof SkySurfaceBuilder) {
+               ((SkySurfaceBuilder) configuredSurfaceBuilder.surfaceBuilder).generate(random, chunk, biome, x, z, worldHeight, surfaceDepthNoise, defaultBlock, defaultFluid, this.getSeaLevel(), seed, (TernarySurfaceConfig) configuredSurfaceBuilder.config, riverNoise);
+            } else {
+               configuredSurfaceBuilder.generate(random, chunk, biome, x, z, worldHeight, surfaceDepthNoise, defaultBlock, defaultFluid, this.getSeaLevel(), seed);
+            }
          }
       }
 

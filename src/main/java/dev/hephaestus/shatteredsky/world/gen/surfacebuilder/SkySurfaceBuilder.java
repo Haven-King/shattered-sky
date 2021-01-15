@@ -1,11 +1,14 @@
 package dev.hephaestus.shatteredsky.world.gen.surfacebuilder;
 
+import com.google.common.util.concurrent.AtomicDouble;
 import dev.hephaestus.shatteredsky.ShatteredSky;
 import dev.hephaestus.shatteredsky.block.SkyStoneBlock;
 import dev.hephaestus.shatteredsky.block.WorldgenDummyBlock;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.gen.surfacebuilder.SurfaceBuilder;
@@ -18,17 +21,40 @@ public class SkySurfaceBuilder extends SurfaceBuilder<TernarySurfaceConfig> {
 		super(TernarySurfaceConfig.CODEC);
 	}
 
-	@Override
-	public void generate(Random random, Chunk chunk, Biome biome, int x, int z, int height, double noise, BlockState defaultBlock, BlockState defaultFluid, int seaLevel, long seed, TernarySurfaceConfig config) {
+	private static final AtomicDouble MAX = new AtomicDouble(Double.MIN_VALUE);
+	private static final AtomicDouble MIN = new AtomicDouble(Double.MAX_VALUE);
+
+	public void generate(Random random, Chunk chunk, Biome biome, int x, int z, int height, double noise, BlockState defaultBlock, BlockState defaultFluid, int seaLevel, long seed, TernarySurfaceConfig config, double riverNoise) {
+		double clampedNoise = (MathHelper.clamp(noise, 1D, 3D) - 1D) / 2D;
+		int rivers = 3 * (seaLevel / 4);
+
 		BlockState topMaterial = config.getTopMaterial();
 		BlockState underMaterial = config.getUnderMaterial();
-		BlockPos.Mutable mut = new BlockPos.Mutable();
+		BlockPos.Mutable mut = new BlockPos.Mutable(x, rivers, z);
 		BlockPos.Mutable mut2 = new BlockPos.Mutable();
 
 		int depth = -1;
 		int maxDepth = (int)(noise / 3.0D + 3.0D + random.nextDouble() * 0.25D);
 		int relativeX = x & 15;
 		int relativeZ = z & 15;
+
+		if (riverNoise > 56D && chunk.getBlockState(mut.set(x, rivers, z)).isAir()) {
+			chunk.setBlockState(mut, ShatteredSky.Blocks.NON_FLOWING_WATER.getDefaultState(), false);
+		}
+
+		if (clampedNoise > 0) {
+			int n = (int) (Math.sqrt(clampedNoise) * 10);
+
+			for (int i = 0; i < n; ++i) {
+				if (i > 0) {
+					mut.set(x, rivers + i, z);
+					chunk.setBlockState(mut, Blocks.AIR.getDefaultState(), false);
+				}
+
+				mut.set(x, rivers - i, z);
+				chunk.setBlockState(mut, ShatteredSky.Blocks.NON_FLOWING_WATER.getDefaultState(), false);
+			}
+		}
 
 		for(int y = height; y >= 0; --y) {
 			mut.set(relativeX, y, relativeZ);
@@ -58,6 +84,11 @@ public class SkySurfaceBuilder extends SurfaceBuilder<TernarySurfaceConfig> {
 		}
 
 		this.generateShatteredBottom(height, mut, mut2, relativeX, relativeZ, chunk, defaultBlock, random);
+	}
+
+	@Override
+	public void generate(Random random, Chunk chunk, Biome biome, int x, int z, int height, double noise, BlockState defaultBlock, BlockState defaultFluid, int seaLevel, long seed, TernarySurfaceConfig config) {
+		this.generate(random, chunk, biome, x, z, height, noise, defaultBlock, defaultFluid, seaLevel, seed, config, 0D);
 	}
 
 	protected void generateShatteredBottom(int height, BlockPos.Mutable mut, BlockPos.Mutable mut2, int relativeX, int relativeZ, Chunk chunk, BlockState defaultBlock, Random random) {

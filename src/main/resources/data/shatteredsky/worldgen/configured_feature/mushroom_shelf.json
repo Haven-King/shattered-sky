@@ -2,7 +2,7 @@
   "type": "shatteredsky:shelf",
   "config": {
     "block_state": {
-      "Name": "shatteredsky:mushroom_block",
+      "Name": "minecraft:glowstone",
       "Properties": {
 
       }

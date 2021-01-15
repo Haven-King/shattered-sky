@@ -23,12 +23,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(FlowableFluid.class)
 public abstract class FlowableFluidMixin {
-
 	@Shadow protected abstract boolean isInfinite();
 
 	@Inject(method = "flow", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/WorldAccess;setBlockState(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;I)Z"))
 	private void flowInVoid(WorldAccess world, BlockPos pos, BlockState state, Direction direction, FluidState fluidState, CallbackInfo ci) {
-		if (world instanceof ServerWorld) {
+		if (world instanceof ServerWorld && fluidState.getFluid().getTickRate(world) > 0) {
 			SkyFalls skyFalls = ChunkDataRegistry.get(ShatteredSky.SKY_FALLS_ID, world.getChunk(pos));
 			skyFalls.tick(pos, fluidState.getFluid());
 			world.getFluidTickScheduler().schedule(pos, fluidState.getFluid(), fluidState.getFluid().getTickRate(world));

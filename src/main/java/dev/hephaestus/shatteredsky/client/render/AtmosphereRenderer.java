@@ -1,7 +1,7 @@
 package dev.hephaestus.shatteredsky.client.render;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import dev.hephaestus.shatteredsky.ShatteredSky;
+import dev.hephaestus.shatteredsky.WorldGen;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.BackgroundRenderer;
 import net.minecraft.client.render.Camera;
@@ -10,7 +10,7 @@ public class AtmosphereRenderer {
 	static int COLOR;
 
 	public static float getRed(float red) {
-		COLOR = MinecraftClient.getInstance().world.getColor(MinecraftClient.getInstance().player.getBlockPos(), ShatteredSky.World.SKY_COLOR);
+		COLOR = MinecraftClient.getInstance().world.getColor(MinecraftClient.getInstance().player.getBlockPos(), WorldGen.SKY_COLOR);
 
 		return (COLOR >> 16)/255F;
 	}

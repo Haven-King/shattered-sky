@@ -4,21 +4,11 @@ import dev.hephaestus.shatteredsky.block.*;
 import dev.hephaestus.shatteredsky.client.model.ModelProvider;
 import dev.hephaestus.shatteredsky.client.render.ShatteredSkyProperties;
 import dev.hephaestus.shatteredsky.data.SkyFalls;
-import dev.hephaestus.shatteredsky.fluid.AtmosphereFluid;
 import dev.hephaestus.shatteredsky.fluid.FluidBlock;
+import dev.hephaestus.shatteredsky.fluid.NonFlowingWater;
 import dev.hephaestus.shatteredsky.mixin.client.render.SkyPropertiesAccessor;
 import dev.hephaestus.shatteredsky.util.ChunkDataDefinition;
 import dev.hephaestus.shatteredsky.util.ChunkDataRegistry;
-import dev.hephaestus.shatteredsky.util.RegistryUtil;
-import dev.hephaestus.shatteredsky.util.SyncedChunkData;
-import dev.hephaestus.shatteredsky.world.gen.chunk.NoiseChunkGenerator;
-import dev.hephaestus.shatteredsky.world.gen.feature.DummyBlockConsumer;
-import dev.hephaestus.shatteredsky.world.gen.feature.HedronFeature;
-import dev.hephaestus.shatteredsky.world.gen.feature.RandomFacingOreFeature;
-import dev.hephaestus.shatteredsky.world.gen.feature.ShelfFeature;
-import dev.hephaestus.shatteredsky.world.gen.surfacebuilder.PoolsSurfaceBuilder;
-import dev.hephaestus.shatteredsky.world.gen.surfacebuilder.SkySurfaceBuilder;
-import grondag.frex.api.event.RenderRegionBakeListener;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -26,23 +16,19 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.client.model.ModelLoadingRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
-import net.fabricmc.fabric.api.network.ClientSidePacketRegistry;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricMaterialBuilder;
+import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
 import net.minecraft.block.Material;
 import net.minecraft.block.MaterialColor;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.color.block.BlockColorProvider;
+import net.minecraft.client.color.world.BiomeColors;
 import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.render.VertexFormat;
-import net.minecraft.client.render.VertexFormats;
 import net.minecraft.client.texture.SpriteAtlasTexture;
 import net.minecraft.client.util.SpriteIdentifier;
 import net.minecraft.fluid.FlowableFluid;
 import net.minecraft.fluid.Fluid;
-import net.minecraft.item.ArmorMaterials;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.util.Identifier;
@@ -50,10 +36,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.dimension.DimensionType;
-import net.minecraft.world.gen.feature.Feature;
-import net.minecraft.world.gen.feature.FeatureConfig;
-import net.minecraft.world.gen.feature.OreFeatureConfig;
-import net.minecraft.world.level.ColorResolver;
 
 public class ShatteredSky implements ModInitializer, ClientModInitializer {
 	public static final String MOD_ID = "shatteredsky";
@@ -67,7 +49,7 @@ public class ShatteredSky implements ModInitializer, ClientModInitializer {
 		Blocks.init();
 		Items.init();
 		Fluids.init();
-		World.init();
+		WorldGen.init();
 		Networking.init();
 	}
 
@@ -79,7 +61,7 @@ public class ShatteredSky implements ModInitializer, ClientModInitializer {
 		Blocks.initClient();
 		Fluids.initClient();
 		Networking.initClient();
-		World.initClient();
+		WorldGen.initClient();
 	}
 
 	public static Identifier id(String... path) {
@@ -91,7 +73,7 @@ public class ShatteredSky implements ModInitializer, ClientModInitializer {
 	}
 
 	public static class Blocks {
-		public static final FluidBlock ATMOSPHERE = new FluidBlock(Fluids.ATMOSPHERE, FabricBlockSettings.of(Materials.ATMOSPHERE).nonOpaque().solidBlock((a, b, c) -> false).suffocates((a, b, c) -> false).blockVision((a, b, c) -> false).noCollision().strength(100.0F).dropsNothing());
+		public static final Block ATMOSPHERE = new Block(FabricBlockSettings.of(Materials.ATMOSPHERE).nonOpaque().solidBlock((a, b, c) -> false).suffocates((a, b, c) -> false).blockVision((a, b, c) -> false).noCollision().strength(100.0F).dropsNothing());
 		public static final Block ATMOSPHERE_BLOCK = new AtmosphereBlock(FabricBlockSettings.of(Materials.ATMOSPHERE).nonOpaque().solidBlock((a, b, c) -> false).suffocates((a, b, c) -> false).blockVision((a, b, c) -> false).noCollision().strength(100.0F).dropsNothing());
 		public static final Block STONE_HEDRON = new HedronBlock(net.minecraft.block.Blocks.STONE);
 		public static final Block SKYMETAL_BLOCK = new Block(FabricBlockSettings.of(Material.METAL));
@@ -101,6 +83,7 @@ public class ShatteredSky implements ModInitializer, ClientModInitializer {
 		public static final Block SKY_STONE = new SkyStoneBlock(FabricBlockSettings.of(Material.STONE));
 		public static final Block WORLDGEN_DUMMY = new WorldgenDummyBlock(FabricBlockSettings.of(Material.STONE));
 		public static final Block MUSHROOM_BLOCK = new Block(FabricBlockSettings.of(Material.PLANT));
+		public static final Block NON_FLOWING_WATER = new FluidBlock(Fluids.NON_FLOWING_WATER, AbstractBlock.Settings.of(Material.WATER).noCollision().strength(100.0F).dropsNothing());
 
         static {
 			register("atmosphere", ATMOSPHERE_BLOCK);
@@ -112,6 +95,7 @@ public class ShatteredSky implements ModInitializer, ClientModInitializer {
 			register("sky_stone", SKY_STONE);
 			register("worldgen_dummy", WORLDGEN_DUMMY);
 			register("mushroom_block", MUSHROOM_BLOCK);
+			register("non_flowing_water", NON_FLOWING_WATER);
 
 			HedronTypes.register(id("stone_hedron"),
 					new SpriteIdentifier(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE, new Identifier("block/stone"))
@@ -162,7 +146,11 @@ public class ShatteredSky implements ModInitializer, ClientModInitializer {
 
 				return color;
 			}, ATMOSPHERE_BLOCK);
-		}
+
+			ColorProviderRegistry.BLOCK.register((state, world, pos, tintIndex) -> {
+				return world != null && pos != null ? BiomeColors.getWaterColor(world, pos) : -1;
+			}, Blocks.NON_FLOWING_WATER);
+        }
 	}
 
 	public static class Items {
@@ -194,12 +182,10 @@ public class ShatteredSky implements ModInitializer, ClientModInitializer {
 	}
 
 	public static class Fluids {
-		public static final FlowableFluid ATMOSPHERE = new AtmosphereFluid();
-		public static final SpriteIdentifier ATMOSPHERE_STILL = new SpriteIdentifier(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE, ShatteredSky.id("block/atmosphere"));
-		public static final SpriteIdentifier ATMOSPHERE_FLOWING = new SpriteIdentifier(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE, ShatteredSky.id("block/atmosphere_flowing"));
+		public static final FlowableFluid NON_FLOWING_WATER = new NonFlowingWater();
 
 		static {
-			register("atmosphere", ATMOSPHERE);
+			register("non_flowing_water", NON_FLOWING_WATER);
 		}
 
 		public static void init() {
@@ -207,10 +193,7 @@ public class ShatteredSky implements ModInitializer, ClientModInitializer {
 
 		@Environment(EnvType.CLIENT)
 		public static void initClient() {
-//			ModelLoaderAccessor.getDefaultTextures().add(ATMOSPHERE_STILL);
-//			ModelLoaderAccessor.getDefaultTextures().add(ATMOSPHERE_FLOWING);
-//			FluidRenderHandlerRegistry.INSTANCE.register(ATMOSPHERE, new AtmosphereFluid.Renderer());
-//			RenderLayersAccessor.getFluids().put(ATMOSPHERE, RenderLayer.getTranslucent());
+			BlockRenderLayerMap.INSTANCE.putFluids(RenderLayer.getTranslucent(), NON_FLOWING_WATER);
 		}
 
 		private static <T extends Fluid> T register(final String id, final T fluid) {
@@ -218,75 +201,4 @@ public class ShatteredSky implements ModInitializer, ClientModInitializer {
 		}
 	}
 
-	public static class World {
-		@Environment(EnvType.CLIENT)
-		public static final ColorResolver SKY_COLOR = (biome, x, z) -> biome.getSkyColor();
-
-		public static void init() {
-			Registry.register(Registry.CHUNK_GENERATOR, id("islands"), NoiseChunkGenerator.CODEC);
-
-			Registry.register(Registry.SURFACE_BUILDER, id("default"), new SkySurfaceBuilder());
-			Registry.register(Registry.SURFACE_BUILDER, id("pools"), new PoolsSurfaceBuilder());
-
-			register("solid_hedron", new HedronFeature());
-			register("capped_hedron", new HedronFeature());
-			register("facing_ore", new RandomFacingOreFeature(OreFeatureConfig.CODEC));
-			register("shelf", new ShelfFeature());
-			register("dummy", new DummyBlockConsumer());
-		}
-
-		public static void initClient() {
-			RenderRegionBakeListener.register(context -> {
-				int min = Math.min(context.origin().getY(), context.origin().getY() + context.ySize() - 1);
-				int max = Math.max(context.origin().getY(), context.origin().getY() + context.ySize() - 1);
-				return ((min <= 10 && max >= 10) || (min <= 70) && max >= 70)
-						&& RegistryUtil.dimensionMatches(MinecraftClient.getInstance().world, ShatteredSky.DIMENSION_TYPE);
-			}, (context, renderer) -> {
-				int min = Math.min(context.origin().getY(), context.origin().getY() + context.ySize() - 1);
-				int max = Math.max(context.origin().getY(), context.origin().getY() + context.ySize() - 1);
-
-				// Without the `if` statement above, I will occasionally crash with an
-				// `ArrayIndexOutOfBoundsException`. This is presumably because when 10 is not between the min and
-				// max, we use a y value of 70. Theoretically, if this bake method only fires when the condition has
-				// been satisfied, this isn't a problem, but clearly that's not the case.
-				BlockPos pos = new BlockPos(
-						context.origin().getX(),
-						(min <= 10 && max >= 10) ? 10 : 70,
-						context.origin().getZ());
-
-				BlockState state = ShatteredSky.Blocks.ATMOSPHERE_BLOCK.getDefaultState();
-
-				// This isn't a huge deal, but with iterate being fully inclusive, this `size - 1` thing is a bit of
-				// a pain.
-				BlockPos.iterate(pos, pos.add(context.xSize() - 1, 0, context.zSize() - 1)).forEach(blockPos -> {
-					renderer.bake(blockPos, state);
-				});
-			});
-		}
-
-		private static <C extends FeatureConfig, F extends Feature<C>> F register(final String id, final F feature) {
-			return Registry.register(Registry.FEATURE, id(id), feature);
-		}
-	}
-
-	public static class RenderLayers extends RenderLayer {
-		public static RenderLayer TRANSLUCENT = of("shatterdsky:translucent", VertexFormats.POSITION_COLOR_LIGHT, 7, 2097152, true, true, RenderLayer.MultiPhaseParameters.builder().shadeModel(SMOOTH_SHADE_MODEL).lightmap(ENABLE_LIGHTMAP).transparency(TRANSLUCENT_TRANSPARENCY).target(CLOUDS_TARGET).build(true));
-
-		private RenderLayers(String name, VertexFormat vertexFormat, int drawMode, int expectedBufferSize, boolean hasCrumbling, boolean translucent, Runnable startAction, Runnable endAction) {
-			super(name, vertexFormat, drawMode, expectedBufferSize, hasCrumbling, translucent, startAction, endAction);
-		}
-	}
-
-	public static class Networking {
-		public static final Identifier SYNC_CHUNK_DATA = id("chunk_data", "sync");
-
-		public static void init() {
-
-		}
-
-		@Environment(EnvType.CLIENT)
-		public static void initClient() {
-			ClientSidePacketRegistry.INSTANCE.register(SYNC_CHUNK_DATA, SyncedChunkData::receive);
-		}
-	}
 }

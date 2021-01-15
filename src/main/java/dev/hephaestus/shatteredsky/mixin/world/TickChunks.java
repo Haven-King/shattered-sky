@@ -1,6 +1,6 @@
 package dev.hephaestus.shatteredsky.mixin.world;
 
-import dev.hephaestus.shatteredsky.ShatteredSky;
+import dev.hephaestus.shatteredsky.Networking;
 import dev.hephaestus.shatteredsky.util.ChunkData;
 import dev.hephaestus.shatteredsky.util.ChunkDataHolder;
 import dev.hephaestus.shatteredsky.util.SyncedChunkData;
@@ -50,7 +50,7 @@ public class TickChunks {
 				buf.writeCompoundTag(((SyncedChunkData) data).sync(world, chunk));
 
 				this.threadedAnvilChunkStorage.getPlayersWatchingChunk(chunkHolder.getPos(), false).forEach(player -> {
-					ServerSidePacketRegistry.INSTANCE.sendToPlayer(player, ShatteredSky.Networking.SYNC_CHUNK_DATA, buf);
+					ServerSidePacketRegistry.INSTANCE.sendToPlayer(player, Networking.SYNC_CHUNK_DATA, buf);
 				});
 			}
 		}
